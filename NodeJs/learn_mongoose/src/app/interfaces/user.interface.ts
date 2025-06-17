@@ -14,3 +14,7 @@ export interface IAddress {
     street: string,
     zip: number
 }
+
+export interface UserInstanceMethods {
+    hashPassword(password: string): string
+}

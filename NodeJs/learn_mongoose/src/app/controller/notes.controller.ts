@@ -1,18 +1,20 @@
 import { Note } from "../model/notes.model"
 import express, { Request, Response } from "express"
 
+
 export const notesRoutes = express.Router()
 
 
-notesRoutes.post('create-note', async (req: Request, res: Response) => {
+notesRoutes.post('/create-note', async (req: Request, res: Response) => {
     const body = req.body
 
-    // notesRoutesroach - 1 of creating a data 
+    // notes Routes approach - 1 of creating a data 
     // const myNote = new Note({
     //     title: "Learning Mongoose",
     // })
     // await myNote.save() 
-
+   
+    // approach - 2 
     const note = await Note.create(body)
 
     res.status(201).json({
@@ -22,7 +24,7 @@ notesRoutes.post('create-note', async (req: Request, res: Response) => {
     })
 })
 notesRoutes.get('/', async (req: Request, res: Response) => {
-    const notes = await Note.find()
+    const notes = await Note.find().populate("userId")
 
     res.status(201).json({
         success: true,
