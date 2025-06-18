@@ -1,7 +1,8 @@
 import { Model, model, Schema } from "mongoose";
-import { IAddress, IUser, UserInstanceMethods } from "../interfaces/user.interface";
+import { IAddress, IUser, UserInstanceMethods, UserStaticMethods } from "../interfaces/user.interface";
 import validator from 'validator';
 import bcrypt from "bcryptjs";
+import { Note } from "./notes.model";
 
 // sub schema or embedding 
 const addressSchema = new Schema<IAddress>({
@@ -13,7 +14,7 @@ const addressSchema = new Schema<IAddress>({
 })
 
 
-const userSchema = new Schema<IUser, Model<IUser>, UserInstanceMethods>({
+const userSchema = new Schema<IUser, UserStaticMethods, UserInstanceMethods>({
     firstName: {
         type: String,
         required: true,
@@ -40,17 +41,17 @@ const userSchema = new Schema<IUser, Model<IUser>, UserInstanceMethods>({
         trim: true,
 
         // custom validation
-        validate: {
+        /* validate: {
             validator: function (value) {
                 return /^[\w.-]+@[\w.-]+\.\w{2,4}$/.test(value);
             },
             message: function (props) {
                 return `Email ${props.value} is not valid email`
             }
-        }
+        } */
 
         // Validator Package
-        // validate: [validator.isEmail, "Invalid Email sent {VALUE}"]
+        validate: [validator.isEmail, "Invalid Email sent {VALUE}"]
     },
 
     password: {
@@ -71,18 +72,45 @@ const userSchema = new Schema<IUser, Model<IUser>, UserInstanceMethods>({
 }, {
     versionKey: false,
     timestamps: true,
+
+    // Virtuals
+    toJSON: { virtuals: true },
+    toObject: { virtuals: true }
 })
 
-//
+// custom method
 userSchema.method("hashPassword", async function (planPassword: string) {
     const password = await bcrypt.hash(planPassword, 10)
-    // this.password = password
-    // this.save()
     return password
 })
 
+// static method
+userSchema.static("hashPassword", async function (planPassword: string) {
+    const password = await bcrypt.hash(planPassword, 10)
+    return password
+})
+
+// pre hooks (middleware)
+userSchema.pre("save", async function (next) {
+    this.password = await bcrypt.hash(this.password, 10)
+    next()
+})
+
+// post hooks (middleware)
+userSchema.post("findOneAndDelete", async function (doc, next) {
+    if (doc) {
+        console.log(doc)
+        await Note.deleteMany({ userId: doc._id })
+    }
+    next()
+})
+
+// Virtuals are fields that are not stored in the database, but are computed values based on existing data in your documents.
+userSchema.virtual("fullName").get(function () {
+    return `${this.firstName} ${this.lastName}`
+})
 
 
 
-export const User = model("User", userSchema)
+export const User = model<IUser, UserStaticMethods>("User", userSchema)
 

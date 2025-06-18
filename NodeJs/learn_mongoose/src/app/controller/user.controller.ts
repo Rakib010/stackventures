@@ -20,19 +20,25 @@ userRoutes.post('/create-user', async (req: Request, res: Response) => {
     try {
         const body = req.body
         // const user = await User.create(body)
-        
+
         // zod validation korle ey vabe req.body hobe
         //const body = await createUserZodSchema.parseAsync(req.body);
 
-        // const password = await bcrypt.hash(body.password, 10)
-        // body.password = password
+        // direct password hash without using method 
+        /* const password = await bcrypt.hash(body.password, 10)
+        body.password = password */
 
-        // how to hash password
-        const user = new User(body)
+        // Built it and custom instance methods(password hashing function)
+        /* const user = new User(body)
         const password = await user.hashPassword(body.password)
         user.password = password
-        await user.save()
+        await user.save() */
 
+        // built in and custom static method(password hashing function)
+        /* const password = await User.hashPassword(body.password)
+        body.password = password; */
+
+        const user = await User.create(body)
 
         res.status(201).json({
             success: true,
@@ -41,7 +47,7 @@ userRoutes.post('/create-user', async (req: Request, res: Response) => {
         })
 
     } catch (error) {
-        //console.log(error)
+        console.log(error)
         res.status(400).json({
             success: false,
             error
@@ -50,7 +56,25 @@ userRoutes.post('/create-user', async (req: Request, res: Response) => {
 })
 
 userRoutes.get('/', async (req: Request, res: Response) => {
+
+    //  const userEmail = req.query.email
+
     const user = await User.find()
+
+    // not efficient way filtering 
+    /*  let user = []
+     if (userEmail) {
+         user = await User.find({ email: userEmail })
+     } else {
+         user = await User.find()
+     } */
+
+    // sort,skip,limit 
+    // const user = await User.find().sort({ "email": "descending" })
+    // const user = await User.find().skip(4)
+    //const user = await User.find().limit(2)
+
+
     res.status(201).json({
         success: true,
         message: "All user retrieve successfully",
@@ -58,6 +82,7 @@ userRoutes.get('/', async (req: Request, res: Response) => {
     })
 
 })
+
 userRoutes.get('/:userId', async (req: Request, res: Response) => {
     const userId = req.params.userId
     const user = await User.findById(userId)
@@ -81,7 +106,10 @@ userRoutes.patch('/:userId', async (req: Request, res: Response) => {
 })
 userRoutes.delete('/:userId', async (req: Request, res: Response) => {
     const userId = req.params.userId
-    const user = await User.findByIdAndDelete(userId)
+    //const user = await User.findByIdAndDelete(userId)
+
+    const user = await User.findOneAndDelete({ _id: userId })
+
     res.status(201).json({
         success: true,
         message: "User Deleted successfully",
