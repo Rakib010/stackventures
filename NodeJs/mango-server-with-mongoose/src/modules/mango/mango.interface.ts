@@ -8,3 +8,4 @@ export interface IMango {
     origin: string,
     season: 'summer' | 'winter'
 } 
+

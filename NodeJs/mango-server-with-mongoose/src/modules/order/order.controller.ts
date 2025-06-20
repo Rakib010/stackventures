@@ -5,8 +5,17 @@ import { Order } from "./order.model";
 // post method 
 const createOrder = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const body = req.body;
-        const order = await Order.create(body);
+        /*   const body = req.body;
+          const order = await Order.create(body); */
+
+        // instance method
+        /* const order = new Order(req.body);
+        await order.checkStock(); 
+        await order.save(); */
+
+        // static method 
+        const order = await Order.checkStock(req.body.mango, req.body.quantity);
+
 
         res.status(201).json({
             success: true,
@@ -21,7 +30,7 @@ const createOrder = async (req: Request, res: Response, next: NextFunction) => {
 // get method 
 const getOrder = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const order = await Order.find();
+        const order = await Order.find().populate('user').populate('mango');
         res.status(201).json({
             success: true,
             message: "Order retrieved successfully",

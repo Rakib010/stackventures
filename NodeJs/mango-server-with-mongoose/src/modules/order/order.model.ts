@@ -1,6 +1,6 @@
 import { Mango } from '../mango/mango.model';
-import { IOrder } from './order.interface';
-import { model, Schema, Types } from "mongoose";
+import { IOrder, OrderMethod, } from './order.interface';
+import { Model, model, Schema, Types } from "mongoose";
 
 // Sub-schema
 const orderAddressSchema = new Schema({
@@ -11,9 +11,9 @@ const orderAddressSchema = new Schema({
 }, { _id: false });
 
 // Main schema
-const orderSchema = new Schema<IOrder>({
-    user: { type: Schema.Types.ObjectId, ref: "User", required: true },
-    mango: { type: Schema.Types.ObjectId, ref: "Mango", required: true },
+const orderSchema = new Schema<IOrder, Model<IOrder>, OrderMethod>({
+    user: { type: Schema.Types.ObjectId, ref: "user", required: true },
+    mango: { type: Schema.Types.ObjectId, ref: "mango", required: true },
     quantity: { type: Number, required: true },
     totalPrice: { type: Number },
     status: {
@@ -26,13 +26,42 @@ const orderSchema = new Schema<IOrder>({
 }, { versionKey: false });
 
 
-// pre hook middleware
+// pre hook 
 orderSchema.pre('save', async function () {
     const mango = await Mango.findById(this.mango)
     if (!mango) throw new Error("Mango not found")
-    this.totalPrice = mango.price*this.quantity
+    this.totalPrice = mango.price * this.quantity
+});
+
+// post hook 
+
+
+// instance method 
+orderSchema.method('checkStock', async function () {
+    const mango = await Mango.findById(this.mango)
+    if (!mango) throw new Error("Mango not found");
+
+    if (mango.stock < this.quantity) {
+        throw new Error(`Not enough mango stock. Available: ${mango.stock}, Requested: ${this.quantity}`);
+    }
+    return true
+})
+
+// static method
+orderSchema.static('checkStock', async function (mangoId: string, quantity: number) {
+    const mango = await Mango.findById(mangoId);
+
+    if (!mango) throw new Error("Mango not found");
+
+    if (mango.stock < quantity) {
+        throw new Error(`Insufficient mango stock. Available: ${mango.stock}, Requested: ${quantity}`);
+    }
+
+    return true;
 });
 
 
 
-export const Order = model<IOrder>("Order", orderSchema);
+
+// export const Order = model<IOrder>("Order", orderSchema);
+export const Order = model<IOrder, Model<IOrder, {}, OrderMethod>>("Order", orderSchema);
