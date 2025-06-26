@@ -1,0 +1,68 @@
+// ✅ Find all documents where age is greater than 30
+// ✅ Return only name and email fields
+db.practice.find({ age: { $gt: 30 } })
+    .project({ name: 1, email: 1 })
+
+// ✅ Find documents where the favorite color is either "Maroon" or "Blue"
+// ✅ Return only the favorite color field
+db.practice.find({
+    $or: [
+        { favoutiteColor: "Maroon" },
+        { favoutiteColor: "Blue" }
+    ]
+})
+.project({ favoutiteColor: 1 })
+
+// ✅ Find documents where the "skills" field is an empty array
+db.practice.find({ skills: { $eq: [] } }, { skills: 1 })
+
+// ✅ Find documents where the person has both "JavaScript" and "Java" as skills
+// (Note: This checks for both values in different objects inside skills array)
+db.practice.find({
+    $and: [
+        { "skills.name": "JAVASCRIPT" },
+        { "skills.name": "JAVA" }
+    ]
+})
+.project({ skills: 1 })
+
+// ✅ Insert a new user with only email field (required before updating)
+db.practice.insertOne({
+    _id: ObjectId("6406ad63fc13ae5a40000067"),
+    email: "amccurry3@cnet.com"
+})
+
+// ✅ Add a new skill object to the user's skills array using $push
+db.practice.updateOne(
+    { _id: ObjectId("6406ad63fc13ae5a40000068") },
+    {
+        $push: {
+            skills: {
+                name: "PYTHON",
+                level: "Beginner",
+                isLearning: true
+            }
+        }
+    }
+)
+
+// ✅ Add "Spanish" to the languages array for the person
+db.practice.updateOne(
+    { _id: ObjectId("6406ad63fc13ae5a40000068") },
+    {
+        $push: { languages: "Spanish" }
+    }
+)
+
+// ✅ View all documents in the collection
+db.practice.find({})
+
+// ✅ Remove the skill object where name = "Kotlin" from skills array
+db.practice.updateOne(
+    { _id: ObjectId("6406ad63fc13ae5a40000068") },
+    {
+        $pull: {
+            skills: { name: "Kotlin" }
+        }
+    }
+)

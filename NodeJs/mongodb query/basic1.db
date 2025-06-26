@@ -1,0 +1,149 @@
+// ✅ Update a user's age to 20 using $set
+db.test.updateOne(
+  { _id: ObjectId("6406ad63fc13ae5a40000065") },
+  {
+    $set: {
+      age: 20
+    }
+  }
+)
+
+// 🔍 View the updated user
+db.test.find({ _id: ObjectId("6406ad63fc13ae5a40000065") })
+
+// ✅ Add multiple interests (no duplicates) using $addToSet
+db.test.updateOne(
+  { _id: ObjectId("6406ad63fc13ae5a40000065") },
+  {
+    $addToSet: {
+      interests: { $each: ["Helping", "Making"] }
+    }
+  }
+)
+
+// ✅ Add multiple interests (allows duplicates) using $push
+db.test.updateOne(
+  { _id: ObjectId("6406ad63fc13ae5a40000065") },
+  {
+    $push: {
+      interests: { $each: ["Helping", "Making"] }
+    }
+  }
+)
+
+// ✅ Add a new field: status = "Active"
+db.test.updateOne(
+  { _id: ObjectId("6406ad63fc13ae5a40000065") },
+  {
+    $set: {
+      status: "Active"
+    }
+  }
+)
+
+// ✅ Add a skill object to skills array using $push
+db.test.updateOne(
+  { _id: ObjectId("6406ad63fc13ae5a40000065") },
+  {
+    $push: {
+      skills: {
+        name: "ReactJS",
+        level: "Intermediate",
+        isLearning: true
+      }
+    }
+  }
+)
+
+// ✅ Add skill to skills array only if not already present using $addToSet
+db.test.updateOne(
+  { _id: ObjectId("6406ad63fc13ae5a40000065") },
+  {
+    $addToSet: {
+      skills: {
+        name: "ReactJS",
+        level: "Intermediate",
+        isLearning: true
+      }
+    }
+  }
+)
+
+// ✅ Remove a field (e.g., birthday) from a document using $unset
+db.test.updateOne(
+  { _id: ObjectId("6406ad63fc13ae5a40000065") },
+  { $unset: { birthday: 1 } }
+)
+
+// ✅ Remove last element of "friends" array using $pop (1 = last, -1 = first)
+db.test.updateOne(
+  { _id: ObjectId("6406ad63fc13ae5a40000065") },
+  { $pop: { friends: 1 } }
+)
+
+// ✅ Remove object-type elements from interests array
+db.test.updateOne(
+  { _id: ObjectId("6406ad63fc13ae5a40000065") },
+  { $pull: { interests: { $type: "object" } } }
+)
+
+// ✅ Remove "Writing" from interests array using $pull
+db.test.updateOne(
+  { _id: ObjectId("6406ad63fc13ae5a40000065") },
+  { $pull: { interests: "Writing" } }
+)
+
+// ✅ Remove multiple values from friends array using $pullAll
+db.test.updateOne(
+  { _id: ObjectId("6406ad63fc13ae5a40000065") },
+  { $pullAll: { friends: ["Mir Hussain", "Fahim Ahammed Firoz"] } }
+)
+
+// ✅ Update nested fields (object) e.g., address.city and address.country
+db.test.updateOne(
+  { _id: ObjectId("6406ad63fc13ae5a40000065") },
+  {
+    $set: {
+      "address.city": "Dhaka",
+      "address.country": "Bangladesh"
+    }
+  }
+)
+
+// ✅ Update one array object based on match using positional operator `$`
+db.test.updateOne(
+  {
+    _id: ObjectId("6406ad63fc13ae5a40000065"),
+    "education.major": "BBA"
+  },
+  {
+    $set: {
+      "education.$.major": "Art of Hizibizi"
+    }
+  }
+)
+
+// ✅ Increment age by 2
+db.test.updateOne(
+  { _id: ObjectId("6406ad63fc13ae5a40000065") },
+  {
+    $inc: {
+      age: 2
+    }
+  }
+)
+
+// ✅ Delete a user document
+db.test.deleteOne({ _id: ObjectId("6406ad63fc13ae5a40000065") })
+
+// ✅ Create a new collection called "posts"
+db.createCollection("posts")
+
+// ✅ Insert a test document into posts collection
+db.posts.insertOne({ test: "testing" })
+
+// ✅ Drop (delete) the posts collection
+db.posts.drop({ writeConcern: { w: 1 } })
+
+// 🔍 View another specific document
+db.test.find({ _id: ObjectId("6406ad64fc13ae5a40000074") })

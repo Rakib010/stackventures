@@ -1,0 +1,147 @@
+db.test.findOne({ age: 17 })                       // Find one user with age 17
+db.test.find({ gender: "Female" }, { name:1,email:1, gender: 1 })    // Find all females and return selected fields
+
+// comparison operator 
+db.test.find({ gender: { $eq: "Male" } })          // Gender equals Male
+db.test.find({ age: { $eq: 12 } })                 // Equal to 12
+db.test.find({ age: { $ne: 12 } })                 // Not equal to 12
+db.test.find({age : {$gt:30}})                     // Greater than 30
+db.test.find({ age: { $gte: 30 } }).sort({ age: 1 })     // Greater than or equal to 30, sort ascending
+db.test.find({ age: { $lt: 30 } }).sort({ age: 1 })       // Less than 30, sort ascending
+
+// implicit and 
+db.test.find({ gender: "Female", age: { $gt: 18, $lt: 30 } }, { age: 1, gender: 1 }).sort({ age: 1 })
+
+db.test.find({ gender: "Female", age: { $in: [18,30,45] } }, { age: 1, gender: 1 }).sort({ age: 1 })
+
+db.test.find({
+  gender: "Female", age: { $nin: [18, 30, 45] },
+  interests: { $in: ["Travelling", "Gaming"] }},
+  { age: 1, gender: 1, interests: 1 }).sort({ age: 1 })
+
+db.test.find({ age: { $ne: 15, $lte: 30 } })
+
+// explicity $and 
+db.test.find({
+    $and: [
+        { gender: 'Female' },
+        { age: { $ne: 15 } },
+        { age: { $lte: 30 } }
+    ]
+}).project({
+    age: 1,
+    gender: 1
+}).sort({ age: 1 })
+
+// explicity $or  
+db.test.find({
+    $or: [
+        { "skills.name": "JAVASCRIPT" }
+    ]
+}).project({
+    skills: 1
+}).sort({ age: 1 })
+
+db.test.find({ "skils.name": { $in: ["JAVASCRIPT"] } }).project({ skills: 1 }).sort({ age: 1 })
+
+// Write a query to find users whose age is less than 25 and gender is Male.
+db.test.find({
+    $and: [
+        { age: { $lte: 25 } },
+        { gender: "Male" }
+    ]
+}).project({ gender: 1, age: 1 }).sort({ age: 1 })
+
+// Find users who have "Cooking" in their interests or whose favorite color is "Aquamarine".
+db.test.find({
+    $or: [
+        { interests: "Cooking" },
+        { favoutiteColor: "Aquamarine" }
+    ]
+}).project({ interests: 1, favoutiteColor: 1,gender:1 })
+
+// Write a query to find users who have a skill name of either "GO" or "C#". 
+db.test.find({
+    $or: [
+        { "skills.name": "GO" }, { "skills.name": "C#" }
+    ]
+}).project({ skills: 1 })
+
+// Alternate version using $in:
+db.test.find({ "skills.name": { $in: ["GO", "C#"] } }).project({skills:1})
+
+// Find users who are learning (i.e., isLearning: true) AND whose skill is "GO"
+db.test.find({
+    $and: [
+        { "skills.name": "GO" },
+        { "skills.isLearning": true }
+    ]
+}).project({ skills: 1 })
+
+// Combination of $and, $or, $in
+// Find users whose:
+// age is less than 30, AND have a skill of either "JAVASCRIPT" or "PYTHON",AND are not currently learning that skill (isLearning: false)
+db.test.find({
+    $and: [
+        { age: { $lt: 30 } },
+        { "skills.name": { $in: ["JAVASCRIPT", "PYTHON"] } },
+        { "skills.isLearning": false }
+    ]
+}).project({ age: 1, skills: 1 })
+
+// $not and $nor 
+// Find users whose age is NOT greater than 30.
+db.test.find({ age: { $not: { $gt: 20 } } }).project({ age: 1 })
+
+// Find users who do NOT have a skill name of "C#"
+db.test.find({ "skills.name": { $not: { $eq: "C#" } } }).projection({ age: 1, skills: 1 })
+
+// Find users who: do NOT have a favorite color of "Aquamarine", and do NOT have interest in "Cooking"
+db.test.find({ $nor: [{ favoutiteColor: "Aquamarine" }, { interest: "Cooking" }] }).projection({ favoutiteColor: 1, interests: 1 })
+
+// Find users who are NOT interested in Reading or Writing.
+db.test.find({ $nor: [{ interest: "Writing" }, { interests: "Reading" }] }).projection({ interests: 1 })
+
+// Element Query Operators ($exists, $type,$size)
+db.test.find({ age: { $exists: false } }).projection({ age: 1 })
+
+db.test.find({age: { $type: "number"} }).projection({ age: 1 })
+
+db.test.find({ friends: { $size: 4 } }).projection({ friends: 1 })
+
+// Find users who have the field education.
+db.test.find({ education: { $exists: true } }).projection({ education: 1 })
+
+// Find users where phone is stored as a string.
+db.test.find({ phone: { $type: "string" } }).projection({ phone: 1 })
+
+// Find users who do NOT have the field birthday.
+db.test.find({ birthday: { $exists: false } }).projection({ birthday: 1 })
+
+// Find users where skills is an array.
+db.test.find({skills: { $type: "array"} }).projection({ skills: 1 })
+
+// Array query ($all , $elemMatch)
+db.test.find({ interests: { $all: ["Travelling", "Reading"] } }).projection({ interests: 1 })
+
+db.test.find({
+    skills: {
+        $elemMatch: {
+            name: "JAVASCRIPT",
+            level: "Intermidiate"
+        }
+    }
+}).projection({ skills: 1 })
+
+// Find users whose languages array includes both "German" and "Catalan" using $all.
+db.test.find({ languages: { $all: ["German", "Catalan"] } }).projection({ languages: 1 })
+
+// Find users who have a skill "PYTHON" with level: "Beginner" using $elemMatch.
+db.test.find({
+    skills: {
+        $elemMatch: {
+            name: "PYTHON",
+            level: "Beginner"
+        }
+    }
+}).projection({ skills: 1 })
