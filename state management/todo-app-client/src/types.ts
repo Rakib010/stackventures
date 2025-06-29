@@ -4,7 +4,11 @@ export interface ITask {
     description: string
     dueDate: string
     isCompleted: boolean
-    priority: "High" | "Medium" | "Low"
+    priority: {
+        type: string,
+        enum: ["Low", "Medium", "High"]
+    }
+
     assignedTo: string | null
 }
 

@@ -1,12 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { cn } from "@/lib/utils";
-import {
-  deleteTask,
-  toggleCompleteState,
-} from "@/redux/features/task/taskSlice";
-import { selectUser } from "@/redux/features/user/userSlice";
-import { useAppDispatch, useAppSelector } from "@/redux/hooks";
+
 import type { ITask } from "@/types";
 import { Trash2 } from "lucide-react";
 
@@ -15,13 +10,6 @@ interface IProps {
 }
 
 const TaskCard = ({ task }: IProps) => {
-  const dispatch = useAppDispatch();
-  const users = useAppSelector(selectUser);
-  console.log(users);
-
-  const assignUser = users.find((user) => user.id === task.assignedTo);
- 
-
   return (
     <div className="border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 p-5 rounded-lg shadow-sm w-full max-w-md space-y-4 transition-colors">
       {/* Header with title and actions */}
@@ -47,21 +35,17 @@ const TaskCard = ({ task }: IProps) => {
         {/* Right: Delete + Checkbox */}
         <div className="flex gap-3 items-center">
           <Button
-            onClick={() => dispatch(deleteTask(task.id))}
             variant="link"
             className="p-0 text-red-500 hover:text-red-600 dark:text-red-400 dark:hover:text-red-300"
           >
             <Trash2 className="w-4 h-4" />
           </Button>
-          <Checkbox
-            checked={task.isCompleted}
-            onClick={() => dispatch(toggleCompleteState(task.id))}
-          />
+          <Checkbox checked={task.isCompleted} />
         </div>
       </div>
 
       {/* Description */}
-      <p>Assigned To - {assignUser ? assignUser.name : "No one"}</p>
+      {/* <p>Assigned To - {assignUser ? assignUser.name : "No one"}</p> */}
       <p className="text-sm text-gray-600 dark:text-gray-300">
         {task?.description}
       </p>

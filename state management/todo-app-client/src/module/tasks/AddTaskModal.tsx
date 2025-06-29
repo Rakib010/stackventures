@@ -25,10 +25,7 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
-import { addTask } from "@/redux/features/task/taskSlice";
-import { selectUser } from "@/redux/features/user/userSlice";
-import { useAppDispatch, useAppSelector } from "@/redux/hooks";
-import type { ITask } from "@/types";
+import { useCreateTaskMutation } from "@/redux/api/baseApi";
 import { PopoverContent } from "@radix-ui/react-popover";
 import { Select } from "@radix-ui/react-select";
 import { format } from "date-fns";
@@ -37,16 +34,24 @@ import { useState } from "react";
 import { useForm, type FieldValues, type SubmitHandler } from "react-hook-form";
 
 export function AddTaskModal() {
-  // modal open and close
   const [open, setOpen] = useState(false);
-
   const form = useForm();
 
-  const dispatch = useAppDispatch();
-  const users = useAppSelector(selectUser);
+  const [createTask, { data }] = useCreateTaskMutation();
 
-  const onSubmit: SubmitHandler<FieldValues> = (data) => {
-    dispatch(addTask(data as ITask));
+  console.log("data", data);
+
+  const onSubmit: SubmitHandler<FieldValues> = async (data) => {
+    const taskData = {
+      ...data,
+      isCompleted: false,
+    };
+
+    //
+    const res = await createTask(taskData).unwrap();
+    console.log("res data", res);
+
+    // modal close & form reset
     setOpen(false);
     form.reset();
   };
@@ -153,9 +158,9 @@ export function AddTaskModal() {
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      {users.map((user) => (
+                      {/*   {users.map((user) => (
                         <SelectItem value={user.id}>{user.name}</SelectItem>
-                      ))}
+                      ))} */}
                     </SelectContent>
                   </Select>
                 </FormItem>
@@ -164,7 +169,7 @@ export function AddTaskModal() {
             {/* Date */}
             <FormField
               control={form.control}
-              name="Due Date"
+              name="dueDate"
               render={({ field }) => (
                 <FormItem className="flex flex-col">
                   <FormLabel>Due Date</FormLabel>
