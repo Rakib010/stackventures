@@ -63,21 +63,21 @@ const getAllPosts = async ({ page, limit, search, isFeatured, tags }: { page: nu
 };
 
 const getPostById = async (id: number) => {
-
-    const result = await prisma.$transaction(async (tx) => {
-        await tx.post.update({
+    return await prisma.$transaction(async (tdx) => {
+        await tdx.post.update({
             where: { id },
-            data: { views: { increment: 1 } }
-        })
+            data: {
+                views: {
+                    increment: 1
+                }
+            }
+        });
 
-        return await tx.post.findUnique({
+        return await tdx.post.findUnique({
             where: { id },
             include: { author: true },
         });
-
     })
-
-    return result;
 };
 
 const updatePost = async (id: number, data: Partial<any>) => {
@@ -88,10 +88,62 @@ const deletePost = async (id: number) => {
     return prisma.post.delete({ where: { id } });
 };
 
+const getBlogStat = async () => {
+    return await prisma.$transaction(async (tx) => {
+        const aggregates = await tx.post.aggregate({
+            _count: true,
+            _sum: { views: true },
+            _avg: { views: true },
+            _max: { views: true },
+            _min: { views: true }
+        })
+
+        const featuredCount = await tx.post.count({
+            where: { isFeatured: true }
+        })
+
+        const topFeatured = await tx.post.findFirst({
+            where: { isFeatured: true },
+            orderBy: { views: "desc" }
+        })
+
+        const lastWeek = new Date();
+        lastWeek.setDate(lastWeek.getDate() - 7)
+
+        const lastWeekPost = await tx.post.count({
+            where: {
+                createdAt: {
+                    gte: lastWeek
+                }
+            }
+        })
+
+        return {
+            stats: {
+                totalPost: aggregates._count ?? 0,
+                totalViews: aggregates._sum.views ?? 0,
+                avgViews: aggregates._avg.views ?? 0,
+                minViews: aggregates._min.views ?? 0,
+                maxViews: aggregates._max.views ?? 0
+
+            },
+            featured: {
+                count: featuredCount,
+                topPost: topFeatured
+            },
+            lastWeekPost
+        }
+    })
+
+};
+
+
+
 export const PostService = {
     createPost,
     getAllPosts,
     getPostById,
     updatePost,
-    deletePost
+    deletePost,
+    getBlogStat
 }
