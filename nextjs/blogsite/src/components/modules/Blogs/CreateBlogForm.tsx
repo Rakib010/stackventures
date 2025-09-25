@@ -8,7 +8,7 @@ export default function CreateBlogForm() {
 
   return (
     <Form
-      action={create}
+      action={create} // create -> blog api done that file 
       className="max-w-4xl mx-auto p-6 bg-white shadow-md rounded-lg space-y-4 w-full"
     >
       <h2 className="text-xl font-semibold mb-4">Create Blog</h2>
