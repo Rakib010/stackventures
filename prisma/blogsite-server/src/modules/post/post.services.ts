@@ -51,8 +51,6 @@ const getAllPosts = async ({ page, limit, search, isFeatured, tags }: { page: nu
 
     const total = await prisma.post.count({ where })
 
-    console.log("total", result)
-
     return {
         pagination: {
             page,
