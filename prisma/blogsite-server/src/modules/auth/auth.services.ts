@@ -26,10 +26,7 @@ const loginWithGoogle = async (data: Prisma.UserCreateInput) => {
     if (!user) {
         user = await prisma.user.create({ data })
     }
-
-
 }
-
 
 export const AuthServices = {
     login,

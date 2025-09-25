@@ -3,9 +3,11 @@ import BlogDetailsCard from "@/components/modules/Blogs/BlogDetailsCard";
 
 //Fetch dynamic data using generateStaticParams() for SSG
 export const generateStaticParams = async () => {
-  const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_API}/post`);
+  const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_API}/post`, {
+    cache: "no-store",
+  });
   const { data: blogs } = await res.json();
-  return blogs.slice(0, 2).map((blog: any) => ({
+  return blogs?.slice(0, 2).map((blog: any) => ({
     blogId: String(blog.id),
   }));
 };
